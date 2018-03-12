@@ -30,13 +30,14 @@ class PlaneGame(object):
 		# 这一块我就不累述了  大家去看笔记  SCREEN_RECT.size会返回一个元组 里面的内容就是宽高
 		self.screen = pygame.display.set_mode(SCREEN_RECT.size)
 		# 2 创建游戏时钟 pygame.time.Clcok()为pygame提供的系统方法
-		self.clock = pygame.time.Clcok()
+		self.clock = pygame.time.Clock()
 		# 3 因为创建精灵和精灵组内容比较多 所以我封装成一个方法
 		# 接下我们继续 这是调用创建精灵的方法
-		self __create_sprites() # 这一块内容有点问题我们需要调整一下
+		self.__create_sprites() # 这一块内容有点问题我们需要调整一下
 		# 以上内容应该是属于游戏初始化的时候的设置
 
 	def start_game(self):
+
 		"""在开始游戏这里我们需要做下面几件事"""
 		while True:
 			# 1 设置帧率
@@ -88,7 +89,7 @@ class PlaneGame(object):
 
 
 # 这个方法就是在我当前方法内生效 在其他模块调不到
-if __name__ == "__mian__":
+if __name__ == "__main__":
 	# 创建游戏对象
 	game = PlaneGame()
 	# 开始游戏
