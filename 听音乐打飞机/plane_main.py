@@ -76,8 +76,8 @@ class PlaneGame(object):
 	def __check_collide(self):
 		pass
 
-	# 在这里我多设计一个静态方法
-	def __game_over():
+	
+	def __game_over(self):
 		"""游戏结束"""
 		print("游戏结束")
 		# 这是pygame提供的卸载模块的功能
