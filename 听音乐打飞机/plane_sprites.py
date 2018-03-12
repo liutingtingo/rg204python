@@ -4,7 +4,7 @@
 在其他模块调用
 """
 import pygame
-
+import random
 # 设置游戏屏幕小大 这是一个常量
 # 常量见名知意 就是不需要猜测的数字的含义 就是一个固定的数值
 # 通过一处修改 其他地方也能生效 统一控制
@@ -19,6 +19,16 @@ image-->图片
 rect--->坐标
 speed -->速度
 """
+
+# 接下来我们就开始写我们敌机方面的内容 （产生敌机）
+# 我先定义一个事件常量
+CREATE_ENEMY_EVENT = pygame.USEREVENT
+
+# 我们还可以定义一个事件常量 （发射子弹）
+HERO_FIRE_EVENT = pygame.USEREVENT + 1
+
+
+
 class GameSprite(pygame.sprite.Sprite):
 	"""游戏精灵的基础类"""
 	# 我们其实可以给我们的基础类的速度 设置一个默认值
@@ -63,7 +73,90 @@ class Background(GameSprite):
 		if self.rect.y >= SCREEN_RECT.height:
 			self.rect.y = -self.rect.height
 
+# 接下来我们就要设置我们的敌机类
+# 我们的敌机类 同样也是继承自我们的精灵基类
+class Enemy(GameSprite):
+	"""敌机精灵类"""
+	def __init__(self):
+		# 1 调用父类方法 创建敌机精灵类 并且指定敌机图像
+		super().__init__('images/enemy1.png')
+		# 2 设置敌机初始速度 稍后设置 （随机数）
+		# 我的sublime 没有花事件去调  老是跟我发脾气
+		self.speed = random.randint(1, 3)
+		# 3 设置敌机的随机初始位置 稍后设置
+		# self.rect.y  = self.rect.bottom - self.rect.height
+		self.rect.bottom = 0
+		# 敌机x轴最大值 需要用屏幕的宽度-敌机自身的宽度
+		max_x = SCREEN_RECT.width - self.rect.width
+		# 随机一个位置
+		self.rect.x = random.randint(0, max_x)
 
+
+		# 我们发现。。。。。敌机出来的位置在 一条线上
+		# 说明  x轴的位置一直没有变 
+
+		def update(self):
+			# 1 调用父类方法
+			super().update()
+
+			# 2 判断是否飞出屏幕 如果是 需要敌机从精灵组删除
+			if self.rect.y >= SCREEN_RECT.height:
+				print("敌机飞出屏幕")
+				# 移出屏幕  就销毁
+				self.kill()
+# 接下来我们就设计英雄类和子弹类
+
+# 英雄精灵类
+class Hero(GameSprite):
+	"""英雄精灵类"""
+	def __init__(self):
+		# 英雄的初始速度我设置为0
+		super().__init__('./images/me1.png',0)
+
+		# 设置初始位置 这是是让我英雄X轴的中心点等于屏幕X轴中心点
+		self.rect.centerx = SCREEN_RECT.centerx
+		# 这里是设置我飞机的y轴
+		self.rect.bottom = SCREEN_RECT.bottom - 120
+
+		# 子弹组
+		self.bullets = pygame.sprite.Group()
+		# 这样 我们的子弹精灵组 就创建完毕了 我们就要去fire里面修改我们的
+		# 方法了
+
+	def update(self):
+		# 飞机水平移动
+		self.rect.x += self.speed
+
+		# 控制英雄边界 屏幕边界
+		if self.rect.left < 0:
+			self.rect.left = 0
+		if self.rect.right >SCREEN_RECT.right:
+			self.rect.right = SCREEN_RECT.right
+
+	def fire(self):
+		# 英雄的方法。。。发射子弹  是一个动作  是一个行为 。。。
+		print("发射子弹....")
+
+		for i in (1,2,3):
+			# 子弹精灵 我们在 英雄的这个fire（）方法里面去创建
+			#1 创建 子弹精灵
+			bullet = Bullet()
+			#2 设置精灵位置
+			bullet.rect.bottom = self.rect.y -20
+			bullet.rect.centerx = self.rect.centerx
+			#3 将精灵添加到精灵组
+			self.bullets.add(bullet)
+
+
+class Bullet(GameSprite):
+	"""子弹精灵"""
+	def __init__(self):
+		super().__init__('images/bullet1.png',-2)
+	def update(self):
+		super().update()
+		# 判断是否超出屏幕
+		if self.rect.bottom < 0:
+			self.kill()
 
 """
 正能量

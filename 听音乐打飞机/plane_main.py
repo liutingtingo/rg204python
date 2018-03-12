@@ -15,6 +15,15 @@ import pygame
 #from pygame import *
 from plane_sprites import *
 
+# 我先写在这里
+# 初始化
+pygame.mixer.init()
+# 加载
+pygame.mixer.music.load('薛之谦 - 小幸运 (Live).mp3')
+# 播放
+pygame.mixer.music.play()
+
+
 class PlaneGame(object):
 	"""飞机大战主游戏类"""
 	# 初始化方法
@@ -35,6 +44,23 @@ class PlaneGame(object):
 		# 接下我们继续 这是调用创建精灵的方法
 		self.__create_sprites() # 这一块内容有点问题我们需要调整一下
 		# 以上内容应该是属于游戏初始化的时候的设置
+		# 4 设置定时器 每隔多少秒 创建 一个敌机
+		# pygame.time.set_timer相当于写了一个定时器 每隔1秒钟
+		# 去调用一次方法
+		# 在这里我想说一下啊pygame这个库已经很久没有维护了
+		# 是一个很陈旧的python包  我们只是用它 来更加的让我了解
+		#  有一个程序是如何构建的  以及类的设计
+		pygame.time.set_timer(CREATE_ENEMY_EVENT,1000) 
+
+		# 我们可以再写一个定时器  发射子弹
+		# 比如  我可以每隔0.5秒发射一颗子弹
+		pygame.time.set_timer(HERO_FIRE_EVENT,500)
+		#  我们在这一步 已经定义了 让系统每隔0.5秒 调用了一下pygame事件
+		#  那么我们就需要去我们的事件监听的方法里面去监听事件
+
+
+
+
 
 	def start_game(self):
 
@@ -54,7 +80,7 @@ class PlaneGame(object):
 			# 更新精灵组 碰撞检测 刷新屏幕这些事情 是要实时检测的
 			# 所以我写在游戏循环里面
 			# 没1/60秒 就会调用一次
-
+			
 
 
 	# 创建精灵和精灵组
@@ -69,34 +95,120 @@ class PlaneGame(object):
 		# bg2.rect.y = -bg2.rect.height
 		# 我们已经创建了背景精灵  我们接下来可以创建一个背景精灵组
 		# 背景组 把我们的背景扔进 背景精灵组
+		#------------------------------------------
+		# 英雄
+		self.hero = Hero()
+
 		self.back_group = pygame.sprite.Group(bg1,bg2)
 		# 敌机组
 		self.enemy_group = pygame.sprite.Group()
 		# 英雄组
-		self.hero_group = pygame.sprite.Group()
+		self.hero_group = pygame.sprite.Group(self.hero)
+
 
 
 	# 事件监听
 	def __event_handler(self):
+
 		# 在这里我先写 事件监听  为啥呢？在调试过程中我好关闭窗口呀
 		for event in pygame.event.get():
+			# 另外一个方案 返回按键元组  这个我们观察一下就知道了
+			# 如果 某个按键按下 对应的值应该会是
+			key_pressed = pygame.key.get_pressed()
+			if key_pressed[pygame.K_RIGHT]:
+				print("向右边移动")
+				# 给英雄一个移动速度
+				self.hero.speed = 2
+			elif key_pressed[pygame.K_LEFT]:
+				self.hero.speed =  -2
+				print("向左边移动")
+			else:
+				self.hero.speed = 0
+
 			# pygame.event.get():这是 获取到我们所有的事件
 			if event.type == pygame.QUIT:
+
 				# 哈哈 我调用方法 是不是相当于可以关闭我们的窗口啦！！！
 				# 在开发的过程中需要  有这种思想 专门的事情由专门的方法去做
 				self.__game_over()
+				# event.type 相当于说之前 是通过我们按键盘或者
+				# 移动鼠标 产生事件  
+				# 那么现在呢  是我们自己创造一个事件 每秒执行一次
+				#  然后我们去监听我们自己 让 系统去每秒调用的事件
+				# 如果调到 那就说明监听成功
+				# 那么既然监听监听成功 我需要在监听成功后 
+				# 去创建敌机  因为我的目的 就是每秒创建一家敌机
+			elif event.type == CREATE_ENEMY_EVENT:
+				# 因为我的敌机精灵类还没有写
+				# 我这里就先输出一下  
+				# 其实这一步  我们完全可以先运行一下
+				# 看看有没有出错  看看是不是每秒调用一次
+				print("新的敌机产生")
+				# 我们添加了敌机  但是但是但是  
+				# 没有刷新呀！
+				self.enemy_group.add(Enemy())
+			elif event.type == HERO_FIRE_EVENT:
+				self.hero.fire()
+				# 对了  别忘要 去添加子弹
+				# 既然是添加子弹   其实  子弹我们也是可以设计成一个类
+
+		# 上面既然我们已经定义了我们每秒钟调一次pygame事件 接下来我们
+		#   就需要去监听这个事件
+
+		# 接下来我们就要在我的事件监听里面去 捕获我的事件
+			# 这是第一种方式  但是这种方式有一个缺点
+			# 就是不能持续移动  这是在监听按下事件 只按下  抬起 才算一次 灵活性不强
+			# elif event.type == pygame.KEYDOWN and event.key == pygame.K_RIGHT:
+			# 	print("向右移动")
+			# elif pygame.key.get_pressed():
+			# 	if keys_pressed[pygame.K_RIGHT]:
+			# 		print("向右移动")
+
+
+
+
 		
 	# 更新精灵和精灵组
 	def __update_sprites(self):
 		"""更新精灵组"""
 		# 我们这一步  先更新背景组
 		# 刷新位置
-		self.back_group.update()
-		# 绘制到屏幕上   类似blit
-		self.back_group.draw(self.screen)
+		# self.back_group.update()
+		# # 绘制到屏幕上   类似blit
+		# self.back_group.draw(self.screen)
+
+		# self.enemy_group.update()
+		# self.enemy_group.draw(self.screen)
+
+
+		# self.hero_group.update()
+		# self.enemy_group.draw(self.screen)
+
+
+		#  到这里我们就可以简写代码了 改造 看了比较清爽 
+		for  xxx  in [self.back_group,self.enemy_group,self.hero_group,self.hero.bullets]:
+			xxx.update()
+			xxx.draw(self.screen)
+
 
 	def __check_collide(self):
-		pass
+		"""接下来我们就需要完成碰撞检测"""
+		# 1 子弹摧毁飞机
+		# 子弹炸毁敌机 的情况：
+		# 地一个参数和第二个参数是要参与碰撞检测的精灵
+		# 地三个参数为 Ture的时候 就是当碰撞的时候 被碰撞的精灵从精灵组移出
+		pygame.sprite.groupcollide(self.hero.bullets,self.enemy_group,True,True)
+		# 2 敌机撞毁飞机
+		enemies = pygame.sprite.spritecollide(self.hero,self.enemy_group,True)
+
+		# 判断列表时候有内容
+		if len(enemies)>0:
+			# 让英雄牺牲
+			self.hero.kill()
+
+			# 结束游戏
+			PlaneGame.__game_over()	
+
 
 	
 	def __game_over(self):
