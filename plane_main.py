@@ -1,5 +1,6 @@
 import pygame
 from plane_sprites import *
+# import plane_sprites
 
 class PlaneGame(object):
 
@@ -14,7 +15,7 @@ class PlaneGame(object):
 		# 初始化窗口  size  =  width height
 		self.screen = pygame.display.set_mode((SCREEN_RECT.width,SCREEN_RECT.height))
 		# 游戏时钟
-		self.clcok = pygame.time.Clock()
+		self.clock = pygame.time.Clock()
 		#  创建精灵和精灵组
 		self.__create_sprites()
 
@@ -34,16 +35,34 @@ class PlaneGame(object):
 
 	def __create_sprites(self):
 		"""创建精灵和精灵组"""
+		bg1 = Background('images/background.png')
+		bg2 = Background('images/background.png')
+		bg2.rect.y = -bg2.rect.height
+		self.back_group = pygame.sprite.Group(bg1,bg2)
+ 
+
+
 		pass
 	# 监听事件
 	def __handler_event(self):
-		pass
+		# 你所有的事件 都会被监听到  并且以列表的形式返回
+		for event in pygame.event.get():
+			# 判断事件类型  pygame.event.QUIT
+			if event.type == pygame.QUIT:
+				# pygame模块卸载
+				pygame.quit()
+				# 退出系统
+				exit()
+
+
+
 	# 碰撞检测
 	def __check_collide(self):
 		pass
 	# 更新精灵和精灵组的方法
 	def __update_sprites(self):
-		pass
+		self.back_group.update()
+		self.back_group.draw(self.screen)
 
 if __name__ == "__main__":
 	# 使用游戏类  创建一个游戏对象
