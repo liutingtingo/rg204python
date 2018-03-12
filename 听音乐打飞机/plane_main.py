@@ -59,7 +59,23 @@ class PlaneGame(object):
 
 	# 创建精灵和精灵组
 	def __create_sprites(self):
-		pass	
+		bg1 = Background()
+		# True 就表示是第二张图片
+		bg2 = Background(True)
+		# 首先你要知道 你需要先 创建背景精灵 需要把精灵的修改一下 
+		# bg1 = Background('images/background.png')
+		# bg2 = Background('images/background.png')
+		# # 我们发现 两张图片的位置我们需要设置一下
+		# bg2.rect.y = -bg2.rect.height
+		# 我们已经创建了背景精灵  我们接下来可以创建一个背景精灵组
+		# 背景组 把我们的背景扔进 背景精灵组
+		self.back_group = pygame.sprite.Group(bg1,bg2)
+		# 敌机组
+		self.enemy_group = pygame.sprite.Group()
+		# 英雄组
+		self.hero_group = pygame.sprite.Group()
+
+
 	# 事件监听
 	def __event_handler(self):
 		# 在这里我先写 事件监听  为啥呢？在调试过程中我好关闭窗口呀
@@ -72,7 +88,13 @@ class PlaneGame(object):
 		
 	# 更新精灵和精灵组
 	def __update_sprites(self):
-		pass
+		"""更新精灵组"""
+		# 我们这一步  先更新背景组
+		# 刷新位置
+		self.back_group.update()
+		# 绘制到屏幕上   类似blit
+		self.back_group.draw(self.screen)
+
 	def __check_collide(self):
 		pass
 
